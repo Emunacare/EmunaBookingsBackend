@@ -34,13 +34,13 @@ module.exports = async function addAppointment(fastify, opts) {
                 .where({ appointment_id: body.appointmentId ? body.appointmentId : appointmentId[0] })
                 .first();
 
-            const socialLinkId = await trx('precription_details')
+            const socialLinkId = await trx('prescription_details')
                 .insert({
-                    user_id: user.clientId,
+                    user_id: body.clientId,
                     appointment_id: appointmentId[0],
-                    consultant_id: user.consultantId,
+                    consultant_id: body.consultantId,
                 });
-            let socialLink = await trx('precription_details')
+            let socialLink = await trx('prescription_details')
                 .select({ socialLinkId: 'prescription_id' })
                 .where({ prescription_id: body.socialLinkId ? body.socialLinkId : socialLinkId[0] })
                 .first();

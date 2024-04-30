@@ -1,3 +1,4 @@
+const moment = require('moment');
 
 module.exports = async function searchUser(fastify, opts) {
 
@@ -59,8 +60,21 @@ module.exports = async function searchUser(fastify, opts) {
         let getUserQuery = fastify.appdb('users as u')
             .innerJoin('lookup_details as ld', 'ld.lookup_dtl_id', 'u.role_id')
             .innerJoin('lookup_details as ld1', 'ld1.lookup_dtl_id', 'u.status_id')
+            .innerJoin('appointments as a', 'a.recipient_id', 'u.user_id')
+            .innerJoin('social_media_links as s', 's.user_id', 'u.user_id')
             .leftJoin('pictures as p', 'p.picture_id', 'u.picture_id')
             .where({ 'u.user_id': params.id });
+        // const todayDate = moment(new Date()).format("YYYY-MM-DD");
+
+        // console.log(todayDate);
+        // let getUserQueryInProcessDate = fastify.appdb('users as u')
+        //     .innerJoin('appointments as a', 'a.recipient_id', 'u.user_id')
+        //     .andWhereRaw(`DATE(j.appointment_start_date) <= DATE('${newDate}') AND DATE(j.appointment_end_date) >= DATE('${newDate}')`);
+        // let getUserQueryAssignedDate = fastify.appdb('users as u')
+        //     .innerJoin('appointments as a', 'a.recipient_id', 'u.user_id')
+        //     .whereRaw(`DATE(appointment_start_date) >=  DATE(appointment_end_date)`)
+
+
 
         const selectMappings = {
             userId: "u.user_id",
@@ -81,10 +95,19 @@ module.exports = async function searchUser(fastify, opts) {
             roleId: "ld.lookup_dtl_id",
             role: "ld.dtl_desc",
             createdDate: "u.created_date",
+            socialLinkId: "s.social_link_id"
         };
-
+        const selectMappingsDate = {
+            appointmentId: 'a.appointment_id'
+        }
         getUserQuery = getUserQuery.select(selectMappings);
+        // getUserQueryInProcessDate = getUserQueryInProcessDate.select(selectMappingsDate);
+        // getUserQueryAssignedDate = getUserQueryAssignedDate.select(selectMappingsDate);
+
         const UserResult = await fastify.lib.selectSingleRow(request, reply, getUserQuery);
+        // const UserResult2 = await fastify.lib.selectMultiRow(request, reply, getUserQueryInProcessDate);
+        // const UserResult3 = await fastify.lib.selectMultiRow(request, reply, getUserQueryAssignedDate);
+
 
         // const addedSocialLinks = {
         //     ...UserResult,
@@ -130,6 +153,7 @@ module.exports = async function searchUser(fastify, opts) {
                 clientPictureName: "p1.file_name",
                 clientPictureLink: "u1.picture",
                 appointmentTitle: "j.appointment_title",
+                appointmentId: "j.appointment_id",
                 appointmentStartDate: "j.appointment_start_date",
                 appointmentEndDate: "j.appointment_end_date",
                 appointmentStartTime: "j.appointment_start_time",

@@ -32,7 +32,7 @@ module.exports = async function searchWorkingHours(fastify, opts) {
             const UserResult = await fastify.lib.selectMultiRow(request, reply, getUserQuery);
 
             fastify.log.info(`${apiName}-Search working_hours successfully:`, { query, resultCount: UserResult.length });
-            return { ...UserResult, rows: UserResult.rows.sort((a, b) => b.userId - a.userId) };
+            return { ...UserResult, rows: UserResult.rows.sort((a, b) => a.weekDayId - b.weekDayId) };
         } catch (error) {
             fastify.log.error(`${apiName}-Error searching working_hours:`, error);
             throw new Error('Error searching working_hours');

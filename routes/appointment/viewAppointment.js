@@ -74,52 +74,52 @@ module.exports = async function searchAppointment(fastify, opts) {
             return fastify.lib.returnMessage('Appointment ID is missing!', 400);
         }
 
-        try {
-            let getUserQuery = fastify.appdb('appointments as j')
-                .innerJoin('users as u', 'u.user_id', 'j.recipient_id')
-                .innerJoin('users as u1', 'u1.user_id', 'j.user_id')
-                .leftJoin('pictures as p', 'p.picture_id', 'u.picture_id')
-                .leftJoin('pictures as p1', 'p1.picture_id', 'u1.picture_id')
-                .innerJoin('lookup_details as ld1', 'ld1.lookup_dtl_id', 'j.appointment_status')
-                .where({ 'j.appointment_id': params.id })
-                .where({ 'appointment_status': status });
+        // try {
+        let getUserQuery = fastify.appdb('appointments as j')
+            .innerJoin('users as u', 'u.user_id', 'j.recipient_id')
+            .innerJoin('users as u1', 'u1.user_id', 'j.user_id')
+            .leftJoin('pictures as p', 'p.picture_id', 'u.picture_id')
+            .leftJoin('pictures as p1', 'p1.picture_id', 'u1.picture_id')
+            .innerJoin('lookup_details as ld1', 'ld1.lookup_dtl_id', 'j.appointment_status')
+            .where({ 'j.appointment_id': params.id })
+            .where({ 'j.appointment_status': status });
 
 
-            const selectMappings = {
-                appointmentId: "j.appointment_id",
-                consultantId: "u.user_id",
-                consultantFirstName: "u.first_name",
-                consultantLastName: "u.last_name",
-                consultantPictureId: "p.picture_id",
-                consultantPictureName: "p.file_name",
-                consultantPictureLink: "u1.picture",
-                clientId: "u1.user_id",
-                clientfirstName: "u1.first_name",
-                clientlastName: "u1.last_name",
-                clientPictureId: "p1.picture_id",
-                clientPictureName: "p1.file_name",
-                clientPictureLink: "u1.picture",
-                appointmentTitle: "j.appointment_title",
-                appointmentStartDate: "j.appointment_start_date",
-                appointmentEndDate: "j.appointment_end_date",
-                appointmentStartTime: "j.appointment_start_time",
-                appointmentEndTime: "j.appointment_end_time",
-                appointmentStatus: "j.appointment_status",
-                appointmentDescription: "j.appointment_description",
-                createdDate: "j.created_date",
-                upatedDate: "j.updated_date",
-            };
+        const selectMappings = {
+            appointmentId: "j.appointment_id",
+            consultantId: "u.user_id",
+            consultantFirstName: "u.first_name",
+            consultantLastName: "u.last_name",
+            consultantPictureId: "p.picture_id",
+            consultantPictureName: "p.file_name",
+            consultantPictureLink: "u1.picture",
+            clientId: "u1.user_id",
+            clientfirstName: "u1.first_name",
+            clientlastName: "u1.last_name",
+            clientPictureId: "p1.picture_id",
+            clientPictureName: "p1.file_name",
+            clientPictureLink: "u1.picture",
+            appointmentTitle: "j.appointment_title",
+            appointmentStartDate: "j.appointment_start_date",
+            appointmentEndDate: "j.appointment_end_date",
+            appointmentStartTime: "j.appointment_start_time",
+            appointmentEndTime: "j.appointment_end_time",
+            appointmentStatus: "j.appointment_status",
+            appointmentDescription: "j.appointment_description",
+            createdDate: "j.created_date",
+            upatedDate: "j.updated_date",
+        };
 
 
-            getUserQuery = getUserQuery.select(selectMappings);
-            const UserResult = await fastify.lib.selectSingleRow(request, reply, getUserQuery);
+        getUserQuery = getUserQuery.select(selectMappings);
+        const UserResult = await fastify.lib.selectSingleRow(request, reply, getUserQuery);
 
-            fastify.log.info(`${apiName}-Search Appointmnet by ID successfully:`, { id: params.id });
-            return UserResult;
-        } catch (error) {
-            fastify.log.error(`${apiName}-Error searching Appointmnet by ID:`, error);
-            throw new Error('Error searching Appointmnet by ID');
-        }
+        fastify.log.info(`${apiName}-Search Appointmnet by ID successfully:`, { id: params.id });
+        return UserResult;
+        // } catch (error) {
+        //     fastify.log.error(`${apiName}-Error searching Appointmnet by ID:`, error);
+        //     throw new Error('Error searching Appointmnet by ID');
+        // }
     });
 
     fastify.delete('/delete/:id', async (request, reply) => {
@@ -177,15 +177,17 @@ module.exports = async function searchAppointment(fastify, opts) {
             //         }
             //     });
             // }
+            console.log()
             if (query.date) {
                 console.log(query.date);
                 const newDate = moment(new Date(query.date)).format("YYYY-MM-DD");
                 console.log(newDate);
                 // getUserQuery = getUserQuery
                 // .whereRaw(`DATE(j.appointment_start_date) <= ${newDate}`)
-                // .whereRaw(`DATE(j.appointment_end_date) >= ${newDate}`)
+                // .whereRaw(`DATE(j.appointment_end_date) >= ${newDate}`)  
                 getUserQuery = getUserQuery
-                    .andWhereRaw(`DATE(j.appointment_start_date) <= '${newDate}' AND DATE(j.appointment_end_date) >= '${newDate}'`);
+
+                    .andWhereRaw(`DATE(j.appointment_start_date) <= DATE('${newDate}') AND DATE(j.appointment_end_date) >= DATE('${newDate}')`);
                 // .whereRaw(`DATE(j.appointment_end_date) >= ${newDate}`)
             }
 

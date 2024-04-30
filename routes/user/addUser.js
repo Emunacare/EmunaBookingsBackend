@@ -65,7 +65,7 @@ module.exports = async function AddUser(fastify, opts) {
                 });
             socialLink = await trx('social_media_links')
                 .select({ socialLinkId: 'social_link_id' })
-                .where({ working_hour_id: body.socialLinkId ? body.socialLinkId : socialLinkId[0] })
+                .where({ social_link_id: body.socialLinkId ? body.socialLinkId : socialLinkId[0] })
                 .first();
 
             const response = await fastify.lib.getLookupItemByKey("WEEKDAY");
